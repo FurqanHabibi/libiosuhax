@@ -540,7 +540,7 @@ static int fs_dev_rename_r (struct _reent *r, const char *oldName, const char *n
     }
 
     //! TODO
-    int result = -ENOTSUP;
+    int result = IOSUHAX_FSA_Rename(dev->fsaFd, real_oldpath, real_newpath);
 
     free(real_oldpath);
     free(real_newpath);
@@ -548,7 +548,7 @@ static int fs_dev_rename_r (struct _reent *r, const char *oldName, const char *n
     OSUnlockMutex(dev->pMutex);
 
     if(result < 0) {
-        r->_errno = result;
+        r->_errno = -result;
         return -1;
     }
 

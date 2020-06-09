@@ -785,6 +785,33 @@ int IOSUHAX_FSA_Remove(int fsaFd, const char *path)
     return res;
 }
 
+int IOSUHAX_FSA_Rename(int fsaFd, const char *oldPath, const char *newPath)
+{
+    if(iosuhaxHandle < 0)
+        return iosuhaxHandle;
+
+    const int input_cnt = 3;
+
+    int io_buf_size = sizeof(uint32_t) * input_cnt + strlen(oldPath) + strlen(newPath) + 2;
+
+    uint32_t *io_buf = (uint32_t*)memalign(0x20, ROUNDUP(io_buf_size, 0x20));
+    if(!io_buf)
+        return -2;
+    
+    io_buf[0] = fsaFd;
+    io_buf[1] = sizeof(uint32_t) * input_cnt;
+    io_buf[2] = io_buf[1] + strlen(oldPath) + 1;
+    strcpy(((char*)io_buf) + io_buf[1], oldPath);
+    strcpy(((char*)io_buf) + io_buf[2], newPath);
+
+    int res = IOS_Ioctl(iosuhaxHandle, IOCTL_FSA_RENAME, io_buf, io_buf_size, io_buf, 4);
+    if(res >= 0)
+       res = io_buf[0];
+
+    free(io_buf);
+    return res;
+}
+
 int IOSUHAX_FSA_ChangeMode(int fsaFd, const char* path, int mode)
 {
     if(iosuhaxHandle < 0)
